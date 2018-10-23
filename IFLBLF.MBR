@@ -1,0 +1,23 @@
+     ‚*-----------------------------------------------------------------*
+     ‚* Project      : AB Utilities                                     *
+     ‚* Programmer   : Ashish Bagaddeo                                  *
+     ‚* Date         : 00/00/0000                                       *
+     ‚* Description  : IFLBL FILE                                       *
+     ‚* © Copyright  : iCORE®  mailto: support@icore.co.in              *
+     ‚*-----------------------------------------------------------------*
+     A*
+     A          R IFLBLR
+     A            FID            4  0
+     A            FSTRSEQ        6  2
+     A            FENDSEQ        6  2
+     A            FIFDATA      120
+     A            FENDDATA     120
+     A            FELSESQ1       6  2
+     A            FELSEDT1     120
+     A            FELSESQ2       6  2
+     A            FELSEDT2     120
+     A            FELSESQ3       6  2
+     A            FELSEDT3     120
+     A            FELSESQ4       6  2
+     A            FELSEDT4     120
+     A          K FID

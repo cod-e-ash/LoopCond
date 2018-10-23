@@ -1,0 +1,33 @@
+ /* €šProject        : AB Utilities                                           */
+ /* €šProgrammer     : Ashish Bagaddeo                                        */
+ /* €šDate           : 01/01/2014                                             */
+ /* €šDescription    : Find Source in Specified Libraries                     */
+ /* €šCopyright      : iCORE®                    mailto: support@icore.co.in  */
+ /* €š*************************************************************************/
+             PGM        PARM(&SRCMBR &SRCFIL &SRCLIB)
+
+             DCL        VAR(&SRCMBR) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCFIL) TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCLIB) TYPE(*CHAR) LEN(10)
+
+             OVRDBF     FILE(OFFICE) TOFILE(&SRCLIB/&SRCFIL) +
+                          MBR(&SRCMBR) LVLCHK(*NO) OVRSCOPE(*CALLLVL)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ENDTAG))
+
+             CHKOBJ     OBJ(*CURLIB/IFLBLF) OBJTYPE(*FILE)
+             MONMSG     MSGID(CPF9801) EXEC(CRTDUPOBJ OBJ(IFLBLF) +
+                         FROMLIB(RPGUTILS) OBJTYPE(*FILE) +
+                         TOLIB(*CURLIB) CST(*NO) TRG(*NO) +
+                         FILEID(*YES))
+
+             OVRDBF     FILE(IFLBLF) TOFILE(*CURLIB/IFLBLF) +
+                          MBR(*FIRST) LVLCHK(*NO) +
+                          OVRSCOPE(*CALLLVL) SHARE(*NO) +
+
+             CLRPFM     FILE(IFLBLF)
+             MONMSG     MSGID(CPF0000) EXEC(GOTO CMDLBL(ENDTAG))
+
+             CALL       PGM(IFLBLP)
+
+ ENDTAG:     DLTOVR     FILE(*ALL) LVL(*)
+             ENDPGM

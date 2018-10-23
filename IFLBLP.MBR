@@ -1,0 +1,341 @@
+     ‚* Project     : AB Utilities                                         *
+     ‚* Programmer  : Ashish Bagaddeo                                      *
+     ‚* Date        : 00/00/0000                                           *
+     ‚* Description : Loop/Branch Statement Finder                         *
+     ‚*                                                                    *
+     ‚* © Copyright  : iCORE®            mailto: support@icore.co.in       *
+     ‚**********************************************************************
+     H Debug Option(*NoDebugIO)
+     H CopyRight('iCORE® - Ashish Bagaddeo')
+
+     FIFLBLF    UF A E           K DISK
+
+     D WKCURIF         S              4  0
+     D WKTOTIF         S              4  0
+     D wkStrUpper      S                   like(SRCDTA)
+     D wkStrUpper2     S                   like(SRCDTA)
+     D wkCasFlg        S               N
+     d lo              c                   'abcdefghijklmnopqrstuvwxyz'
+     d up              c                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+     D WKIFDS          DS                  Qualified
+     D                                     Dim(1000)
+     D  wkTotIf                       4  0
+     D i               S              4  0
+     D wkFoundStart    S              4  0
+     D wkFoundMid      S              4  0
+     D wkFoundEnd      S              4  0
+
+     D wkCondArr       S             10    Dim(20) Inz
+
+     D WKSRCDS         DS
+     D  SRCSEQ                        6  2
+     D  SRCDAT                        6
+     D  SRCDTA                      120
+
+      /free
+
+        wkCurIf = 0;
+        wkTotIf = 0;
+        wkCasFlg = *Off;
+
+        // Set SQL Options
+        Exec SQL
+          SET OPTION COMMIT = *NONE, CLOSQLCSR = *ENDMOD;
+
+        Exec SQL
+          DECLARE SRCFILECUR CURSOR FOR
+          SELECT * FROM OFFICE;
+
+        Exec SQL
+          OPEN SRCFILECUR;
+
+        ExSr $ReadNextRec;
+
+        DoW SQLCOD = 0;
+
+       //‚Fixed- Format
+          If %SubSt(SRCDTA:7:1) <> '*' And (
+             %SubSt(SRCDTA:6:1) = 'C' Or %SubSt(SRCDTA:6:1) = 'c');
+
+            wkStrUpper = %XLATE(lo:up:SRCDTA);
+
+            Select;
+            When %SubSt(wkStrUpper:26:4) = '  IF'  Or
+                 %SubSt(wkStrUpper:28:5) = 'SELEC' Or
+                 %SubSt(wkStrUpper:26:5) = '  DO ' Or
+                 %SubSt(wkStrUpper:26:5) = '  DOW' Or
+                 %SubSt(wkStrUpper:26:5) = '  DOU' Or
+                 (%SubSt(wkStrUpper:26:5) = '  CAS' And wkCasFlg = *Off) Or
+                 %SubSt(wkStrUpper:26:2) = 'IF'    Or
+                 %SubSt(wkStrUpper:26:5) = 'SELEC' Or
+                 %SubSt(wkStrUpper:26:3) = 'DO '   Or
+                 %SubSt(wkStrUpper:26:3) = 'DOW' Or
+                 %SubSt(wkStrUpper:26:3) = 'DOU' Or
+                 (%SubSt(wkStrUpper:26:3) = 'CAS' And wkCasFlg = *Off);
+
+              If %SubSt(wkStrUpper:26:5) = '  CAS' Or
+                 %SubSt(wkStrUpper:26:3) = 'CAS';
+                wkCasFlg = *On;
+              EndIf;
+
+              wkCurIf += 1;
+              wkTotIf += 1;
+              FID      = wkTotIf;
+              FStrSeq  = SRCSEQ;
+              FIFData  = SRCDTA;
+              FElseSq1 = *Zeros;
+              FElseDT1 = *Blanks;
+              FElseSq2 = *Zeros;
+              FElseDT2 = *Blanks;
+              FElseSq3 = *Zeros;
+              FElseDT3 = *Blanks;
+              FElseSq4 = *Zeros;
+              FElseDT4 = *Blanks;
+              FEndSeq  = *Zeros;
+              FEndData = *Blanks;
+
+              wkIFDS(wkCurIf).wkTotIF  = wkTotIf;
+
+              Write(E) IFLBLR;
+
+            When %SubSt(wkStrUpper:26:6) = '  ELSE' Or
+                 %SubSt(wkStrUpper:26:4) = '  WH'   Or
+                 %SubSt(wkStrUpper:26:6) = 'ELSE'   Or
+                 %SubSt(wkStrUpper:26:4) = 'WHEN'   Or
+                (%SubSt(wkStrUpper:26:3) = 'CAS' And wkCasFlg = *On);
+
+              Chain(E) wkIFDS(wkCurIf).wkTotIf  IFLBLF;
+              If FElseSq1 = *Zeros;
+                FElseSq1 = SRCSEQ;
+                FElseDT1 = SRCDTA;
+              ElseIf FElseSq2 = *Zeros;
+                FElseSq2 = SRCSEQ;
+                FElseDT2 = SRCDTA;
+              ElseIf FElseSq3 = *Zeros;
+                FElseSq3 = SRCSEQ;
+                FElseDT3 = SRCDTA;
+              ElseIf FElseSq4 = *Zeros;
+                FElseSq4 = SRCSEQ;
+                FElseDT4 = SRCDTA;
+              EndIf;
+
+              Update(E) IFLBLR;
+
+            When %SubSt(wkStrUpper:26:7) = '  ENDIF' Or
+                 %SubSt(wkStrUpper:26:7) = '  END  ' Or
+                 %SubSt(wkStrUpper:26:7) = '  ENDSL' Or
+                 %SubSt(wkStrUpper:26:7) = '  ENDDO' Or
+                 %SubSt(wkStrUpper:26:7) = '  ENDCS' Or
+                 %SubSt(wkStrUpper:26:7) = 'ENDIF  ' Or
+                 %SubSt(wkStrUpper:26:7) = 'END    ' Or
+                 %SubSt(wkStrUpper:26:7) = 'ENDSL  ' Or
+                 %SubSt(wkStrUpper:26:7) = 'ENDDO  ' Or
+                 %SubSt(wkStrUpper:26:7) = 'ENDCS  ';
+
+              If wkCasFlg = *On;
+                wkCasFlg = *Off;
+              EndIf;
+
+              Chain(E) wkIFDS(wkCurIf).wkTotIf  IFLBLF;
+              FEndSeq  = SRCSEQ;
+              FEndData = SRCDTA;
+
+              Update(E) IFLBLR;
+
+              wkCurIf -= 1;
+
+            EndSl;
+
+       //‚Free-Format
+          ElseIf %SubSt(SRCDTA:6:2) = *Blanks;
+
+         //‚Check for inline comments
+            If %Scan('//':SRCDTA) > 0;
+              wkStrUpper = %SubSt(SRCDTA:1:%Scan('//':SRCDTA));
+            Else;
+              wkStrUpper = SRCDTA;
+            EndIf;
+
+            wkStrUpper = %XLATE(lo:up:wkStrUpper);
+            wkStrUpper2 = *Blanks;
+            // Trim Spaces
+            ExSr $TrimSpaces;
+
+            wkFoundStart = 0;
+            wkFoundMid   = 0;
+            wkFoundEnd   = 0;
+
+            wkCondArr(1) = 'IF';
+            wkCondArr(2) = 'DO';
+            wkCondArr(3) = 'DOW';
+            wkCondArr(4) = 'DOU';
+            wkCondArr(5) = 'SELECT;';
+            For i=1 to 4;
+              wkFoundStart = %Scan(' '+%Trim(wkCondArr(i))+' ':
+                                   wkStrUpper:8);
+              If wkFoundStart <= 0;
+                 wkFoundStart = %Scan(' '+%Trim(wkCondArr(i))+';':
+                                     wkStrUpper2:8);
+              EndIf;
+              If wkFoundStart > 0;
+                If %Len(%Trim(%SubSt(wkStrUpper:9:wkFoundStart-8))) <= 0;
+                  Leave;
+                Else;
+                  wkFoundStart = 0;
+                EndIf;
+              EndIf;
+            EndFor;
+            If wkFoundStart = 0;
+              wkFoundStart = %Scan(' '+%Trim(wkCondArr(5)):
+                                 wkStrUpper2:8);
+            EndIf;
+
+            wkCondArr(6) = 'ELSE';
+            wkCondArr(7) = 'ELSEIF';
+            wkCondArr(8) = 'WHEN';
+            For i=6 to 8;
+              wkFoundMid = %Scan(' '+%Trim(wkCondArr(i))+' ':
+                                   wkStrUpper:8);
+              If wkFoundMid <= 0;
+                 wkFoundMid = %Scan(' '+%Trim(wkCondArr(i))+';':
+                                     wkStrUpper2:8);
+              EndIf;
+              If wkFoundMid > 0;
+                If %Len(%Trim(%SubSt(wkStrUpper:9:wkFoundMid-8))) <= 0;
+                  Leave;
+                Else;
+                  wkFoundMid = 0;
+                EndIf;
+              EndIf;
+            EndFor;
+
+            wkCondArr(9) = 'ENDIF';
+            wkCondArr(10) = 'ENDSL';
+            wkCondArr(11) = 'ENDDO';
+            For i=9 to 11;
+              wkFoundEnd = %Scan(' '+%Trim(wkCondArr(i))+' ':
+                                   wkStrUpper:8);
+              If wkFoundEnd <= 0;
+                 wkFoundEnd = %Scan(' '+%Trim(wkCondArr(i)):
+                                     wkStrUpper2:8);
+              EndIf;
+              If wkFoundEnd > 0;
+                If %Len(%Trim(%SubSt(wkStrUpper:9:wkFoundEnd-8))) <= 0;
+                  Leave;
+                Else;
+                  wkFoundEnd = 0;
+                EndIf;
+              EndIf;
+            EndFor;
+
+            Select;
+
+            When wkFoundStart > 0;
+              wkCurIf += 1;
+              wkTotIf += 1;
+              FID      = wkTotIf;
+              FStrSeq  = SRCSEQ;
+              FIFData  = SRCDTA;
+              FElseSq1 = *Zeros;
+              FElseDT1 = *Blanks;
+              FElseSq2 = *Zeros;
+              FElseDT2 = *Blanks;
+              FElseSq3 = *Zeros;
+              FElseDT3 = *Blanks;
+              FElseSq4 = *Zeros;
+              FElseDT4 = *Blanks;
+              FEndSeq  = *Zeros;
+              FEndData = *Blanks;
+
+              wkIFDS(wkCurIf).wkTotIF  = wkTotIf;
+
+              Write(E) IFLBLR;
+
+            When wkFoundMid > 0;
+
+              Chain(E) wkIFDS(wkCurIf).wkTotIf  IFLBLF;
+              If FElseSq1 = *Zeros;
+                FElseSq1 = SRCSEQ;
+                FElseDT1 = SRCDTA;
+              ElseIf FElseSq2 = *Zeros;
+                FElseSq2 = SRCSEQ;
+                FElseDT2 = SRCDTA;
+              ElseIf FElseSq3 = *Zeros;
+                FElseSq3 = SRCSEQ;
+                FElseDT3 = SRCDTA;
+              ElseIf FElseSq4 = *Zeros;
+                FElseSq4 = SRCSEQ;
+                FElseDT4 = SRCDTA;
+              EndIf;
+              Update(E) IFLBLR;
+
+            When wkFoundEnd > 0;
+
+              Chain(E) wkIFDS(wkCurIf).wkTotIf  IFLBLF;
+              FEndSeq  = SRCSEQ;
+              FEndData = SRCDTA;
+
+              Update(E) IFLBLR;
+
+              wkCurIf -= 1;
+
+            EndSl;
+
+          EndIf;
+
+          ExSr $ReadNextRec;
+
+        EndDo;
+
+        ExSr $EndPgm;
+
+      //‚==========================================================
+      //‚ Subroutines
+      //‚==========================================================
+      //‚-------------------------
+      //‚ End Program
+      //‚-------------------------
+        BegSr $EndPgm;
+
+          Exec SQL
+            Close SRCFILECUR;
+
+          *InLr = *On;
+          Return;
+
+        EndSr;
+
+      //‚-------------------------
+      //‚ Trim Spaces
+      //‚-------------------------
+        BegSr $TrimSpaces;
+          Exec SQL
+            SELECT
+               CONCAT(
+               SUBSTR(:wkStrUpper,1,8),
+               REPLACE(SUBSTR(:wkStrUpper,9),' ',''))
+               INTO :wkStrUpper2
+               FROM SYSIBM/SYSDUMMY1;
+        EndSr;
+
+      //‚-------------------------
+      //‚ Read Next Record
+      //‚-------------------------
+        BegSr $ReadNextRec;
+
+          Clear wkSRCDS;
+          Exec SQL
+            FETCH NEXT FROM SRCFILECUR INTO :wkSRCDS;
+
+        EndSr;
+
+      //‚-------------------------
+      //‚ Error Subroutine
+      //‚-------------------------
+        BegSr *PSSR;
+
+          ExSr $EndPgm;
+
+        EndSr '*CANCL';
+
+      /end-free

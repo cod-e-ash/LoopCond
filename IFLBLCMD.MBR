@@ -1,0 +1,12 @@
+/* PROJECT     : AB UTILITIES                                               */
+/* PROGRAMMER  : ASHISH BAGADDEO                                            */
+/* DATE        : 00/00/0000                                                 */
+/* DESCRIPTION : COMMAND FILE FOR IFLBLC                                    */
+/* © COPYRIGHT : ICORE®            MAILTO: SUPPORT@ICORE.CO.IN              */
+/*--------------------------------------------------------------------------*/
+             CMD        PROMPT('CONDITION START-END FINDER') +
+                          TEXT('FIND IF-ENDIF AND SELECT-WHEN IN +
+                          OLD RPG')
+             PARM       KWD(SRCMBR) TYPE(*CHAR) LEN(10) PROMPT('MEMBER')
+             PARM       KWD(SRCFIL) TYPE(*CHAR) LEN(10) PROMPT('FILE')
+             PARM       KWD(SRCLIB) TYPE(*CHAR) LEN(10) PROMPT('LIBRARY')
