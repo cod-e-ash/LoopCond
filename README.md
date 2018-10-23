@@ -1,7 +1,7 @@
 # RPG Find Loop/Condition's Start and End
 
 This is part of my **`RPG Utils`** series to help overcome some of the day-to-day activities which can be automated.  
-During our analysis of old rpg or cl codes, we come across a section where its very confusing that which line is part of which if condition or dow loop. This happens moslty when we deal with old rpg codes or some linear code with no indentation. This ustility will help to find the line to start of conditions like (IF, SELECT etc.) and also looping conditions like (DOW, DOU, WHILE, FOR etc.)
+During analysis of old rpg or cl codes, we come across sections where its very confusing that which line is part of which if condition or dow loop. This happens moslty when we deal with old rpg codes or some linear code with no indentation. This ustility will help to find the line to start of conditions like (IF, SELECT etc.) and also looping conditions like (DOW, DOU, WHILE, FOR etc.)
 
 ## Getting Started
 
@@ -75,7 +75,7 @@ E.g.
 IFLBL SRCMBR(IFLBLP) SRCFIL(RPGUTILS) SRCLIB(YOURLIB)
 This will output a file IFLBLF. FSTRSEQ is the start line, FEBDSEQ is the end of the sequence.
 Rest fields will tell you if there are else conditions etc.
-`
+```
 SELECT * FROM IFLBLF
 
 O/P:
@@ -89,7 +89,7 @@ FID    FSTRSEQ    FENDSEQ   FIFDATA
   7     146.00     150.00               If %Scan('//':SRCDTA) > 0;               
   8     155.10     155.13                 If wkFoundStart <= 0;                  
   9     155.16     155.22                 If wkFoundStart > 0;                   
-`
+```
 
 ## Authors
 
