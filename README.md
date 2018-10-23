@@ -1,7 +1,7 @@
-# RPG Find Source
+# RPG Find Looping and Conditions Start and End
 
 This is part of my **`RPG Utils`** series to help overcome some of the day-to-day activities which can be automated.  
-Developers, QA, Analyst or anyone who wants to access source code in RPG _rejoice_. This will help you to find any source within many libraries with just one command. Just set the library list once and enjoy.
+During our analysis of old rpg or cl codes, we come across a section where its very confusing that which line is part of which if condition or dow loop. This happens moslty when we deal with old rpg codes or some linear code with no indentation. This ustility will help to find the line to start of conditions like (IF, SELECT etc.) and also looping conditions like (DOW, DOU, WHILE, FOR etc.)
 
 ## Getting Started
 
@@ -17,32 +17,17 @@ CRTSRCPF RPGUTILS
 
 ### Program and Object Descriptions  
   
-  * `LIBLISTF`  
-  This is a PF source which will hold the library list data.  
+  * `IFLBLF`  
+  This is a PF source which will hold output after running the program on any give source code file.  
 
-  * `LIBLISTP`  
-  This is the program to maintain library list.  
-
-  * `LIBLISTD`  
-  Display file required for library list program.  
-
-  * `LIBLISTCMD`  
-  Command source file.    
-
-  * `VALLSRCC`  
+  * `IFLBLC`  
   Driver CL program.  
 
-  * `VALLSRCCMD`  
+  * `IFLBLCMD`  
   Driver command source file.  
   
-  * `VALLSRCD`  
-  Display file used by main program.
-  
-  * `VALLSRCP`  
+  * `IFLBLP`  
   Main program.  
-  
-  * `CPYBK`  
-  A copybook to store prototype definations and other. If you use any other library that RPGUTILS, please change the path in above RPG program/s for this copy book.  
 
 
 ### Installing
